@@ -13,7 +13,8 @@ stores.append(2002)
 # Second store url
 stores.append(2001)
 
-products = []
+products = {}
+difference = []
 
 for store in stores:
   r = requests.get(store)
