@@ -9,9 +9,9 @@ pp = pprint.PrettyPrinter(indent=2)
 
 stores = []
 # First store url
-stores.append('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&type=Ale&sortdirection=Ascending&site=2002&fullassortment=0')
+stores.append(2002)
 # Second store url
-stores.append('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&type=Ale&sortdirection=Ascending&site=2001&fullassortment=0')
+stores.append(2001)
 
 products = []
 
@@ -20,4 +20,4 @@ for store in stores:
   if r.status_code == 200:
     for product in r.json()['ProductSearchResults']:
       pp.pprint(product['ProductNumber'])
-  print('--------------------------')
+  print('--------------------------')    r = requests.get('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&type=Ale&sortdirection=Ascending&fullassortment=0&site=' + str(store) + '&page=' + str(page))
