@@ -1,0 +1,47 @@
+.beer-label {
+  margin: 0 auto;
+  width: 180px;
+  height:210px;
+  background-size: 210px;
+  background-position: 50% 85%;
+  background-color: white;
+}
+
+.product {
+  width: 180px;
+  height: 300px;
+  margin-top: 10px;
+}
+
+hr {
+  border-color:rgba(0, 0, 0, 0.5);
+}
+
+.product:hover {
+  background-color:#f8f8f5;
+}
+
+.product a {
+  color: #000;
+  text-decoration: none;
+}
+
+.product-name {
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 10px;
+  font-weight: bolder;
+  font-size: 15px;
+  height: 25px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.product-text {
+  padding-left: 20px;
+  padding-right: 10px;
+  font-size: 11px;
+  overflow-x: hidden;
+}
