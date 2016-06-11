@@ -11,10 +11,10 @@ app = Flask(__name__)
 pp = pprint.PrettyPrinter(indent=2)
 
 stores = []
-# First store url
-stores.append(2002)
-# Second store url
+# The store to emanate from
 stores.append(2001)
+# The store to compare with
+stores.append(1901)
 
 products = {}
 difference = []
