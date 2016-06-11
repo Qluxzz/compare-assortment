@@ -4,7 +4,10 @@ import requests
 from sets import Set
 import json
 import pprint
+from flask import Flask
+from flask import render_template
 
+app = Flask(__name__)
 pp = pprint.PrettyPrinter(indent=2)
 
 stores = []
@@ -38,3 +41,9 @@ for product in difference:
   print('Name: ' + product['ProductNameBold'])
   if 'ProductNameThin' in product != None:
     print(' Category: ' + str( product['ProductNameThin'] ))
+@app.route('/')
+def index(products=None):
+    return render_template('index.html', products = difference)
+
+if __name__ == "__main__":
+    app.run()
