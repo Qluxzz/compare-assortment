@@ -34,13 +34,7 @@ for store in stores:
         else:
           if product['ProductNumber'] not in products:
              products[product['ProductNumber']] = product
-            
-print('--------- Difference ---------')  
-for product in difference:
-  print('Product')
-  print('Name: ' + product['ProductNameBold'])
-  if 'ProductNameThin' in product != None:
-    print(' Category: ' + str( product['ProductNameThin'] ))
+
 @app.route('/')
 def index(products=None):
     return render_template('index.html', products = difference)
