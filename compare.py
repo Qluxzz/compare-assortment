@@ -23,7 +23,7 @@ for store in stores:
   page = 0
   next_page = 0
   while next_page != -1:
-    r = requests.get('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&type=Ale&sortdirection=Ascending&fullassortment=0&site=' + str(store) + '&page=' + str(page))
+    r = requests.get('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&sortdirection=Ascending&fullassortment=0&site=' + str(store) + '&page=' + str(page))
     if r.status_code == 200:
       next_page = r.json()['Metadata']['NextPage']
       page += 1
