@@ -1,14 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: latin-1 -*-
 import requests
-from sets import Set
 import json
-import pprint
 from flask import Flask, render_template, request, url_for, redirect, abort
 import xml.etree.ElementTree as ET
 
 app = Flask(__name__)
-pp = pprint.PrettyPrinter(indent=2)
 
 tree = ET.parse('stores.xml')
 root = tree.getroot()
