@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, url_for, redirect, abort
 import xml.etree.ElementTree as ET
 import pprint
 
+pp = pprint.PrettyPrinter(indent=4)
 app = Flask(__name__)
 
 tree = ET.parse('stores.xml')
@@ -53,14 +54,13 @@ def compare_stores( store_one_id, store_two_id ):
                 for product in r.json()['ProductSearchResults']:
                     products.append(product)
         store_assortment.append( products )
-
+    print(len(store_assortment[0]), len(store_assortment[1]))
     if len(store_assortment[0]) > len(store_assortment[1]):
         remove_duplicates( store_assortment[0], store_assortment[1] )
     else:
         remove_duplicates( store_assortment[1], store_assortment[0] )
+    print(len(store_assortment[0]), len(store_assortment[1]))
     return store_assortment
-
-pp = pprint.PrettyPrinter(indent=4)
 
 @app.route('/')
 def index(stores=None):
