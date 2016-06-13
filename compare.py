@@ -30,21 +30,23 @@ def compare_stores( store_one_id, store_two_id ):
     difference = []
 
     for store in stores:
-      page = 0
-      next_page = 0
-      while next_page != -1:
-        r = requests.get('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&sortdirection=Ascending&fullassortment=0&site=' + str(store) + '&page=' + str(page))
-        if r.status_code == 200:
-          next_page = r.json()['Metadata']['NextPage']
-          page += 1
-          for product in r.json()['ProductSearchResults']:
-            if store == stores[1]:
-              if product['ProductNumber'] not in products:
-                 difference.append(product)
-            else:
-              if product['ProductNumber'] not in products:
-                 products[product['ProductNumber']] = product
-    return difference
+        products = []
+        page = 0
+        next_page = 0
+        while next_page != -1:
+            r = requests.get('http://www.systembolaget.se/api/productsearch/search?subcategory=%C3%96l&sortdirection=Ascending&fullassortment=0&site=' + str(store) + '&page=' + str(page))
+            if r.status_code == 200:
+                next_page = r.json()['Metadata']['NextPage']
+                page += 1
+                for product in r.json()['ProductSearchResults']:
+                    products.append(product)
+        store_assortment.append( products )
+
+    if len(store_assortment[0]) > len(store_assortment[1]):
+        remove_duplicates( store_assortment[0], store_assortment[1] )
+    else:
+        remove_duplicates( store_assortment[1], store_assortment[0] )
+    return store_assortment
 
 @app.route('/')
 def index(stores=None):
