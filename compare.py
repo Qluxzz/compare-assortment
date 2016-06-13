@@ -10,6 +10,11 @@ app = Flask(__name__)
 tree = ET.parse('stores.xml')
 root = tree.getroot()
 
+def get_store_info( store_id ):
+    for store in stores:
+        if store['nr'] == store_id:
+            pp.pprint(store)
+            return store
 def remove_duplicates( store1, store2 ):
     for product in store1:
         for product2 in store2:
