@@ -20,11 +20,16 @@ def get_store_info( store_id ):
             pp.pprint(store)
             return store
 def remove_duplicates( store1, store2 ):
+    copy_of_store2 = list(store2)
+
     for product in store1:
         for product2 in store2:
             if product['ProductId'] == product2['ProductId']:
-                store1.remove(product)
                 store2.remove(product2)
+    for product in copy_of_store2:
+        for product2 in store1:
+            if product['ProductId'] == product2['ProductId']:
+                store1.remove(product2)
 def get_stores():
     for child in root.iter('ButikOmbud'):
         # Check if store and not pick up point
