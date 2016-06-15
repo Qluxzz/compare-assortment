@@ -36,10 +36,13 @@ def get_stores():
         if '-' not in child[1].text:
             store = {
                 'nr': child[1].text,
-                'name': child[3].text,
-                'address': child[4].text,
                 'place': child[6].text.title()
             }
+            if child[2].text:
+                print("Found a name")
+                store['name'] = child[2].text
+            else:
+                store['name'] = child[3].text
             stores.append( store )
     return sorted( stores, key=lambda store: store['place'])
 def compare_stores( store_one_id, store_two_id ):
