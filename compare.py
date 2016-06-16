@@ -12,16 +12,14 @@ app = Flask(__name__)
 tree = ET.parse('stores.xml')
 root = tree.getroot()
 
-stores = []
-
 def get_store_info( store_id ):
+    stores = get_stores()
     for store in stores:
         if store['nr'] == store_id:
             pp.pprint(store)
             return store
 def remove_duplicates( store1, store2 ):
     copy_of_store2 = list(store2)
-
     for product in store1:
         for product2 in store2:
             if product['ProductId'] == product2['ProductId']:
@@ -31,6 +29,7 @@ def remove_duplicates( store1, store2 ):
             if product['ProductId'] == product2['ProductId']:
                 store1.remove(product2)
 def get_stores():
+    stores = []
     for child in root.iter('ButikOmbud'):
         # Check if store and not pick up point
         if '-' not in child[1].text:
@@ -39,7 +38,6 @@ def get_stores():
                 'place': child[6].text.title()
             }
             if child[2].text:
-                print("Found a name")
                 store['name'] = child[2].text
             else:
                 store['name'] = child[3].text
@@ -69,6 +67,7 @@ def compare_stores( store_one_id, store_two_id ):
         remove_duplicates( store_assortment[1], store_assortment[0] )
     print(len(store_assortment[0]), len(store_assortment[1]))
     return store_assortment
+
 
 @app.route('/')
 def index(stores=None):
