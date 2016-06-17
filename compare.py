@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: latin-1 -*-
 import requests
-import json
 from flask import Flask, render_template, request, url_for, redirect, abort
 import xml.etree.ElementTree as ET
 import pprint
@@ -67,7 +66,6 @@ def compare_stores( store_one_id, store_two_id ):
         remove_duplicates( store_assortment[1], store_assortment[0] )
     print(len(store_assortment[0]), len(store_assortment[1]))
     return store_assortment
-
 
 @app.route('/')
 def index(stores=None):
