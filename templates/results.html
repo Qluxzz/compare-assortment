@@ -20,30 +20,33 @@
   <body>
     <div class="container">
       <h1>Result</h1>
-      {% for store in stores %}
-        {% if loop.index == 1 %}
-          <h1>The products {{ store1_info.name }} has over {{ store2_info.name }}</h1>
-          <hr height="1px" background-color="black" />
-        {% elif loop.index == 2 %}
-          <h1>The products {{ store2_info.name }} has over {{ store1_info.name }}</h1>
-          <hr height="1px" background-color="black" />
-        {% endif %}
       <div class="row">
-        {% for product in store %}
-        <div class="col-md-2">
-            <div class="product">
-              <a href="http://systembolaget.se{{ product.ProductUrl }}">
-                <div class="beer-label" style="background-image:url('http:{{ product.ProductImage.ImageUrl }}')"></div>
-                <div class="product-name">{{ product.ProductNameBold }}</div>
-                <div class="product-text">
-                  {{ product.Country }}<br />
-                  {{ product.BeverageDescriptionShort }}<br />
-                  {{ product.BottleTextShort }}, {{ product.VolumeText }}
+        {% for store in stores %}
+          {% if loop.index == 1 %}
+          <div class="col-sm-6 border-right">
+            <h1>The products {{ store1_info.name }} has over {{ store2_info.name }}</h1>
+          {% elif loop.index == 2 %}
+          <div class="col-sm-6">
+            <h1>The products {{ store2_info.name }} has over {{ store1_info.name }}</h1>
+          {% endif %}
+          <hr height="1px" background-color="black" />
+          <div class="row">
+          {% for product in store %}
+            <div class="col-sm-4">
+                <div class="product">
+                  <a href="http://systembolaget.se{{ product.ProductUrl }}">
+                    <div class="beer-label" style="background-image:url('http:{{ product.ProductImage.ImageUrl }}')"></div>
+                    <div class="product-name">{{ product.ProductNameBold }}</div>
+                    <div class="product-text">
+                      {{ product.Country }}<br />
+                      {{ product.BeverageDescriptionShort }}<br />
+                      {{ product.BottleTextShort }}, {{ product.VolumeText }}
+                    </div>
+                  </a>
                 </div>
-              </a>
             </div>
-        </div>
         {% endfor %}
+        </div>
       </div>
       {% endfor %}
     </div>

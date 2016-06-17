@@ -14,7 +14,7 @@
 }
 
 hr {
-  border-color:rgba(0, 0, 0, 0.5);
+  border-color:#d3d3d3;
 }
 
 .product:hover {
@@ -44,4 +44,8 @@ hr {
   padding-right: 10px;
   font-size: 11px;
   overflow-x: hidden;
+}
+
+.border-right {
+  border-right: 1px solid #d3d3d3;
 }
