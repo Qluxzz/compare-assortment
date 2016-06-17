@@ -8,4 +8,4 @@ Flask, Requests
 Choose two different stores and press compare, the different collections will then be shown
 
 # Example
-![Example](example.PNG)
+![Example](example.png)
