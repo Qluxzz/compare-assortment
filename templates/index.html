@@ -24,13 +24,13 @@
       <form class="form-inline" action="{{ url_for('add_stores') }}" method="get">
         <div class="form-group">
           <label for="store1">Store #1</label>
-          <select class="form-control" name="store1_field" id="store1">
+          <select class="form-control" name="store1" id="store1">
           {% for store in stores %}
             <option value="{{ store.nr }}">{{ store.place }} - {{ store.name }}</option>
           {% endfor %}
           </select>
           <label for="store1">Store #2</label>
-          <select class="form-control" name="store2_field" id="store2">
+          <select class="form-control" name="store2" id="store2">
           {% for store in stores %}
             <option value="{{ store.nr }}">{{ store.place }} - {{ store.name }}</option>
           {% endfor %}
