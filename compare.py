@@ -76,7 +76,22 @@ def get_products(stores):
                 params['page'] = data['Metadata']['NextPage']
 
                 for product in data['ProductSearchResults']:
-                    products.append(product)
+                    entry = {
+                        'id': product['ProductId'],
+                        'description': product['BeverageDescriptionShort'],
+                        'country': product['Country'],
+                        'name': '{} {}'.format(product['ProductNameBold'], product['ProductNameThin']),
+                        'url': product['ProductUrl'],
+                        'format': product['BottleTextShort'],
+                        'volume': product['VolumeText']
+                    }
+
+                    try:
+                        entry['img'] = product['ProductImage']['ImageUrl']
+                    except:
+                        pass
+
+                    products.append(entry)
 
         store_assortment.append(products)
     return store_assortment
