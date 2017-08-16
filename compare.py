@@ -19,18 +19,15 @@ def get_url(store):
 
 def get_store_info(stores, store_id):
     """ Return specific store info """
-    for store in stores:
-        if store['nr'] == store_id:
-            pp.pprint(store)
-            return store
+    return next((x for x in stores if x['nr'] == store_id), {})
 
-def remove_duplicates(store1, store2):
+def remove_duplicates(stores):
     """ Remove duplicates in each store """
-    ids = [set((x['id']) for x in store1), set((x['id']) for x in store2)]
-    
+    ids = [set((x['id']) for x in stores[0]), set((x['id']) for x in stores[1])]
+
     return [
-        [x for x in store1 if x['id'] not in ids[1]],
-        [x for x in store2 if x['id'] not in ids[0]]
+        [x for x in stores[0] if x['id'] not in ids[1]],
+        [x for x in stores[1] if x['id'] not in ids[0]]
     ]
 
 def get_stores():
@@ -54,10 +51,7 @@ def get_stores():
 
 def compare_stores(store_one_id, store_two_id):
     """ Compare the products between two stores """
-    store_assortment = get_products([store_one_id, store_two_id])
-    store_assortment = remove_duplicates(store_assortment[0], store_assortment[1])
-
-    return store_assortment
+    return remove_duplicates(get_products([store_one_id, store_two_id]))
 
 def get_products(stores):
     """ Get products from stores """
