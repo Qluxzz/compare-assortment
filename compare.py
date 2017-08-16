@@ -26,15 +26,12 @@ def get_store_info(stores, store_id):
 
 def remove_duplicates(store1, store2):
     """ Remove duplicates in each store """
-    copy_of_store2 = list(store2)
-    for product in store1:
-        for product2 in store2:
-            if product['ProductId'] == product2['ProductId']:
-                store2.remove(product2)
-    for product in copy_of_store2:
-        for product2 in store1:
-            if product['ProductId'] == product2['ProductId']:
-                store1.remove(product2)
+    ids = [set((x['id']) for x in store1), set((x['id']) for x in store2)]
+    
+    return [
+        [x for x in store1 if x['id'] not in ids[1]],
+        [x for x in store2 if x['id'] not in ids[0]]
+    ]
 
 def get_stores():
     """ Parse store information from xml file and return sorted list """
@@ -58,11 +55,8 @@ def get_stores():
 def compare_stores(store_one_id, store_two_id):
     """ Compare the products between two stores """
     store_assortment = get_products([store_one_id, store_two_id])
+    store_assortment = remove_duplicates(store_assortment[0], store_assortment[1])
 
-    if len(store_assortment[0]) > len(store_assortment[1]):
-        remove_duplicates(store_assortment[0], store_assortment[1])
-    else:
-        remove_duplicates(store_assortment[1], store_assortment[0])
     return store_assortment
 
 def get_products(stores):
