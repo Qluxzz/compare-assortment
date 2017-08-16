@@ -34,13 +34,13 @@
           {% for product in store %}
             <div class="col-sm-4">
                 <div class="product">
-                  <a href="http://systembolaget.se{{ product.ProductUrl }}">
-                    <div class="beer-label" style="background-image:url('http:{{ product.ProductImage.ImageUrl }}')"></div>
-                    <div class="product-name">{{ product.ProductNameBold }}</div>
+                  <a href="http://systembolaget.se{{ product.url }}">
+                    <div class="beer-label" style="background-image:url('http:{{ product.img }}')"></div>
+                    <div class="product-name">{{ product.name }}</div>
                     <div class="product-text">
-                      {{ product.Country }}<br />
-                      {{ product.BeverageDescriptionShort }}<br />
-                      {{ product.BottleTextShort }}, {{ product.VolumeText }}
+                      {{ product.country }}<br />
+                      {{ product.description }}<br />
+                      {{ product.format }}, {{ product.volume }}
                     </div>
                   </a>
                 </div>
