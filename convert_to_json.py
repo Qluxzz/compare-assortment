@@ -1,14 +1,15 @@
+import json
 import os
+import pprint
+import re
+import sqlite3
 import sys
 import time
-import sqlite3
-import re
 import urllib.request
-import json
+
 from lxml import etree
 from slugify import slugify
 from tqdm import tqdm
-import pprint
 
 PP = pprint.PrettyPrinter()
 
@@ -79,7 +80,7 @@ FILE_LOCATION = [
     'stock'
 ]
 
-def create_tables(db):
+def create_tables(cursor):
     tables = [
         '''CREATE TABLE IF NOT EXISTS products (
             id INT UNIQUE,
@@ -111,17 +112,15 @@ def create_tables(db):
         )''',
         '''CREATE TABLE IF NOT EXISTS stock (
             productId INT,
-            storeId INT
+            storeId INT,
+            category INT,
+            PRIMARY KEY (productId, storeId)
         )'''
     ]
-
-    cursor = db.cursor()
-    for table in tables:
-        cursor.execute(table)
+    [cursor.execute(table) for table in tables]
 
 def get_api_url(location):
     return BASEURL + API_URL.format(location)
-
 
 def should_update_files():
     """ Check if the files are older than one day and update files if true """
@@ -137,7 +136,7 @@ def update_file(file, path):
     urllib.request.urlretrieve(get_api_url(file), path)
     print('Updated {}'.format(path))
 
-def convert_products(db):
+def convert_products(cursor):
     try:
         productsfile = etree.parse('data/products.xml').getroot()
     except:
@@ -167,12 +166,11 @@ def convert_products(db):
     products_information = {}
     products = productsfile.xpath('/artiklar/artikel')
 
-    cursor = db.cursor()
     pbar = tqdm(len(products), desc='Add products to database')
     for product in products:
         info = {}
 
-        id = int(product.find('nr').text)
+        productId = int(product.find('nr').text)
 
         for entry in data:
             info[entry['name']] = ""
@@ -200,7 +198,7 @@ def convert_products(db):
                     cursor
                 )
 
-        info['id'] = id
+        info['id'] = productId
 
         try:
             cursor.execute('''INSERT INTO products VALUES (
@@ -240,7 +238,7 @@ def insert_or_get_existing(table, column, data, cursor):
     else:
         return row[0]
 
-def convert_stock(db):
+def convert_stock(cursor):
     try:
         store_stock = etree.parse('data/stock.xml').getroot()
     except:
@@ -250,8 +248,6 @@ def convert_stock(db):
     stores = store_stock.xpath('/ButikArtikel/Butik')
     pbar = tqdm(total=len(stores), desc='Split up stock per store')
 
-    c = db.cursor()
-
     for store in stores:
         nr = store.attrib['ButikNr']
 
@@ -259,19 +255,16 @@ def convert_stock(db):
 
         if len(products) == 0:
             continue
+    
+        cursor.execute('''
+            SELECT id, category 
+            FROM products 
+            WHERE id IN ({})
+        '''.format(', '.join([str(x) for x in products])))
 
-        for product in products:
-            c.execute('INSERT INTO stock VALUES (?, ?)', [product, nr])
-
+        for entry in cursor.fetchall():
+            cursor.execute('INSERT INTO stock VALUES (?, ?, ?)', (entry[0], nr, entry[1],))
         pbar.update(1)
-    db.commit()
-
-def get_store_products(storeNr, db):
-    c = db.cursor()
-
-    parameters = (storeNr,)
-
-    c.execute('SELECT * FROM stock ORDER BY storeId')
 
 def main():
     should_update_files()
@@ -282,9 +275,11 @@ def main():
         print('Failed to open database')
         sys.exit()
 
-    create_tables(db)
-    convert_products(db)
-    #convert_stock(db)
+    cursor = db.cursor()
+
+    create_tables(cursor)
+    convert_products(cursor)
+    convert_stock(cursor)
     db.commit()
     db.close()
 
