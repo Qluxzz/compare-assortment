@@ -230,15 +230,11 @@ def convert_products(db):
 
         pbar.update(1)
 
-    db.commit()
-def insert_or_get_existing(table, column, data, db, c):
-    c.execute('SELECT rowid FROM {} WHERE {}=?'.format(table, column), (data,))
-
+def insert_or_get_existing(table, column, data, cursor):
     cursor.execute('SELECT rowid FROM {} WHERE {}=?'.format(table, column), (data,))
+    row = cursor.fetchone()
 
     if row is None:
-        c.execute('INSERT OR IGNORE INTO {} ({}) VALUES (?)'.format(table, column), (data,))
-        return c.lastrowid
         cursor.execute('INSERT OR IGNORE INTO {} ({}) VALUES (?)'.format(table, column), (data,))
         return cursor.lastrowid
     else:
