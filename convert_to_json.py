@@ -115,10 +115,9 @@ def create_tables(db):
         )'''
     ]
 
-    c = db.cursor()
+    cursor = db.cursor()
     for table in tables:
-        c.execute(table)
-    db.commit()
+        cursor.execute(table)
 
 def get_api_url(location):
     return BASEURL + API_URL.format(location)
@@ -139,9 +138,6 @@ def update_file(file, path):
     print('Updated {}'.format(path))
 
 def convert_products(db):
-    if not os.path.exists('products'):
-        os.makedirs('products')
-
     try:
         productsfile = etree.parse('data/products.xml').getroot()
     except:
@@ -171,7 +167,7 @@ def convert_products(db):
     products_information = {}
     products = productsfile.xpath('/artiklar/artikel')
 
-    c = db.cursor()
+    cursor = db.cursor()
     pbar = tqdm(len(products), desc='Add products to database')
     for product in products:
         info = {}
@@ -201,14 +197,13 @@ def convert_products(db):
                     replace['table'],
                     replace['name'],
                     info[replace['name']],
-                    db,
-                    c
+                    cursor
                 )
 
         info['id'] = id
 
         try:
-            c.execute('''INSERT INTO products VALUES (
+            cursor.execute('''INSERT INTO products VALUES (
                 :id,
                 :name,
                 :name2,
@@ -236,15 +231,16 @@ def convert_products(db):
         pbar.update(1)
 
     db.commit()
-
 def insert_or_get_existing(table, column, data, db, c):
     c.execute('SELECT rowid FROM {} WHERE {}=?'.format(table, column), (data,))
 
-    row = c.fetchone()
+    cursor.execute('SELECT rowid FROM {} WHERE {}=?'.format(table, column), (data,))
 
     if row is None:
         c.execute('INSERT OR IGNORE INTO {} ({}) VALUES (?)'.format(table, column), (data,))
         return c.lastrowid
+        cursor.execute('INSERT OR IGNORE INTO {} ({}) VALUES (?)'.format(table, column), (data,))
+        return cursor.lastrowid
     else:
         return row[0]
 
@@ -291,8 +287,10 @@ def main():
         sys.exit()
 
     create_tables(db)
-    #convert_stock(db)
     convert_products(db)
+    #convert_stock(db)
+    db.commit()
     db.close()
+
 if __name__ == "__main__":
     main()
