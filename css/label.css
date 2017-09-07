@@ -1,15 +1,8 @@
-.beer-label {
-  margin: 0 auto;
-  width: 180px;
-  height:210px;
-  background-size: 210px;
-  background-position: 50% 85%;
-  background-color: white;
-}
+
 
 .product {
   width: 180px;
-  height: 300px;
+  max-height: 100px;
   margin-top: 10px;
 }
 
