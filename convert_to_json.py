@@ -126,7 +126,7 @@ def should_update_files():
     """ Check if the files are older than one day and update files if true """
     if not os.path.exists('data/'):
         os.makedirs('data/')
-
+    
     for file in FILE_LOCATION:
         path = 'data/{}.xml'.format(file)
         if os.path.exists(path) != True or int(time.time()) - os.stat(path).st_mtime > ONEDAY:
@@ -185,7 +185,7 @@ def convert_products(cursor):
             info['url'] = '{}/{}-{}'.format(
                 CATEGORY[info['category']],
                 slugify(info['name']),
-                id)
+                productId)
         except KeyError:
             continue
 
@@ -238,6 +238,148 @@ def insert_or_get_existing(table, column, data, cursor):
     else:
         return row[0]
 
+def convert_stock_to_json(cursor):
+    if not os.path.exists('stores'):
+        os.makedirs('stores')
+    
+    cursor.execute('SELECT * FROM stock ORDER BY storeId ASC, category ASC')
+
+    current_store = None
+    current_category = None
+
+    products = {}
+
+    db_stores = cursor.fetchall()
+    pbar = tqdm(len(db_stores), desc='Converting store stock to json')
+    for productId, storeNr, categoryNr in db_stores:
+        if current_store is None:
+            current_store = storeNr
+
+        if current_category is None:
+            current_category = categoryNr
+            products[current_category] = []
+
+        if storeNr != current_store:
+            write_to_file(products, current_store)
+            products.clear()
+            current_store = storeNr
+
+        if categoryNr != current_category:
+            current_category = categoryNr
+            products[current_category] = []
+        products[current_category].append(productId)
+        pbar.update(1)
+
+def convert_products_to_json(cursor):
+    if not os.path.exists('products'):
+        os.makedirs('products')
+
+    cursor.execute('SELECT * FROM products ORDER BY category ASC, id ASC')
+
+    current_category = None
+
+    products = {}
+
+    db_products = cursor.fetchall()
+    pbar = tqdm(len(db_products), desc='Converting product information to json')
+    for product in db_products:
+        if current_category is None:
+            current_category = product[4]
+        
+        if product[4] != current_category:
+            with open('products/{}.json'.format(current_category), 'w') as jsonfile:
+                json.dump(products, jsonfile)
+            products.clear()
+            current_category = product[4]
+        products[product[0]] = product[1:3] + product[4:]
+        pbar.update(1)
+
+def convert_stores_to_json():
+    try:
+        store_information = etree.parse('data/stores.xml').getroot()
+    except:
+        print('Failed to open data/stores.xml')
+        return
+
+    stores = store_information.xpath('/ButikerOmbud/ButikOmbud')
+
+    store_json = []
+
+    for store in stores:
+        nr = store.xpath('Nr/text()')[0]
+
+        if '-' in nr:
+            continue
+        try:
+            name = store.xpath('Namn/text()')[0]
+        except IndexError:
+            name = store.xpath('Address1/text()')[0]
+        
+        city = store.xpath('Address4/text()')[0]
+        store_json.append([nr, name, city])
+
+    with open('stores/info.json', 'w') as jsonfile:
+        json.dump(store_json, jsonfile)
+
+def convert_misc_to_json(cursor):
+    if not os.path.exists('info'):
+        os.makedirs('info')
+
+    info = {}
+
+    cursor.execute('SELECT rowid, style FROM styles')
+
+    styles = {}
+
+    for style in cursor.fetchall():
+        styles[style[0]] = style[1]
+
+    info['styles'] = styles
+
+    cursor.execute('SELECT rowid, type FROM types')
+
+    types = {}
+
+    for _type in cursor.fetchall():
+        types[_type[0]] = _type[1]
+
+    info['types'] = types
+
+    cursor.execute('SELECT rowid, country FROM countries')
+
+    countries = {}
+
+    for country in cursor.fetchall():
+        countries[country[0]] = country[1]
+
+    info['countries'] = countries
+
+    formats = {}
+
+    cursor.execute('SELECT rowid, format FROM formats')
+
+    for format in cursor.fetchall():
+        formats[format[0]] = format[1]
+
+    info['formats'] = formats
+
+    categories = {}
+
+    cursor.execute('SELECT rowid, category FROM categories')
+
+    for category in cursor.fetchall():
+        categories[category[0]] = category[1]
+
+    info['categories'] = categories
+
+    with open('info.json', 'w') as jsonfile:
+        json.dump(info, jsonfile)
+
+
+def write_to_file(products, storeNr):
+    with open('stores/{}.json'.format(storeNr), 'w') as jsonfile:
+        json.dump(products, jsonfile)
+
 def convert_stock(cursor):
     try:
         store_stock = etree.parse('data/stock.xml').getroot()
@@ -268,9 +410,8 @@ def convert_stock(cursor):
 
 def main():
     should_update_files()
-
     try:
-        db = sqlite3.connect('products.db')
+        db = sqlite3.connect(':memory:')
     except:
         print('Failed to open database')
         sys.exit()
@@ -280,7 +421,11 @@ def main():
     create_tables(cursor)
     convert_products(cursor)
     convert_stock(cursor)
-    db.commit()
+
+    convert_stock_to_json(cursor)
+    convert_products_to_json(cursor)
+    convert_stores_to_json()
+    convert_misc_to_json(cursor)
     db.close()
 
 if __name__ == "__main__":
