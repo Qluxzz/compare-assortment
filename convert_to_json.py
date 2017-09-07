@@ -316,7 +316,7 @@ def convert_stores_to_json():
             name = store.xpath('Address1/text()')[0]
         
         city = store.xpath('Address4/text()')[0]
-        store_json.append([nr, name, city])
+        store_json.append([nr, name, city.upper()])
 
     with open('stores/info.json', 'w') as jsonfile:
         json.dump(store_json, jsonfile)
