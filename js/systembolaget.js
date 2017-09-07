@@ -9,8 +9,24 @@ const loadData = () => {
     })
 
     $.get({
-        url: 'info.json'
-    }).done(data => info = data)
+        url: 'info.json',
+        success: addCategories 
+    }).done(data => {
+     info = data
+     addCategories(info.categories)
+    })
+}
+const addCategories = categories => {
+    const elem = document.getElementById('category')
+    for (key in Object.keys(categories)) {
+        if (categories[key] === undefined)
+            continue
+
+        const option = document.createElement('option')
+        option.value = key
+        option.text = categories[key]
+        elem.appendChild(option)
+    }
 }
 
 const getStores = () => {
@@ -34,7 +50,10 @@ const getStores = () => {
 }
 
 const addEventListener = () => {
-    document.getElementById('compare').addEventListener('click', getStoreStock)
+    document.getElementById('compare')
+        .addEventListener('click', getStoreStock)
+    document.getElementById('compare-form')
+        .addEventListener('submit',e => e.preventDefault())
 }
 
 var storeStock = []
@@ -46,10 +65,6 @@ const getStoreStock = event => {
     ]
     storeStock = []
     selectedStores.forEach(store => getStock(store))
-}
-
-Array.prototype.diff = a => {
-    return this.filter(i => a.indexOf(i) < 0)
 }
 
 var storeDiffStock = []
@@ -133,6 +148,6 @@ const getStock = storeId => {
     })
 }
 
+addEventListener()
 loadData()
 getStores()
-addEventListener()
