@@ -5,7 +5,6 @@ const loadData = () => {
     $.get({
         url: 'products/5.json'
     }).done(ps => {
-        console.log(ps)
         products = ps
     })
 
@@ -27,7 +26,7 @@ const getStores = () => {
             selects.forEach(select => {
                 var option = document.createElement('option')
                 option.value = nr
-                option.text = `${name} - ${city}`
+                option.text = `${city} - ${name}`
                 select.appendChild(option)
             })
         })
@@ -98,11 +97,9 @@ const addProduct = (product, elem) => {
 
     const pText = document.createElement('div')
     pText.classList.add('product-text')
-    pText.innerHTML += `
-        ${info.countries[country]}<br />
-        ${info.styles[style]}<br />
-        ${info.types[type]}
-    `
+    pText.innerHTML += country && `${info.countries[country]}<br />`
+    pText.innerHTML += style && `${info.styles[style]}<br />`
+    pText.innerHTML += type && `${info.types[type]}`
 
     link.appendChild(pName)
     link.appendChild(pText)
