@@ -95,25 +95,22 @@ const getProductsByCategory = async (category) => {
 }
 
 const viewProductDiff = stores => {
-    const store1 = document.getElementById('store1Result')
-    const store2 = document.getElementById('store2Result')
+    const storesElem = [
+        document.getElementById('store1Result'),
+        document.getElementById('store2Result')
+    ]
 
-    while (store1.hasChildNodes())
-        store1.removeChild(store1.lastChild)
-
-    while (store2.hasChildNodes())
-        store2.removeChild(store2.lastChild)
-
-    stores[0].forEach(product => addProduct(product, store1))
-    stores[1].forEach(product => addProduct(product, store2))
+    stores.forEach((store, index) => {
+        const storeElem = storesElem[index]
+        while (storeElem.hasChildNodes())
+            storeElem.removeChild(storeElem.lastChild)
+        store.forEach(product => addProduct(product, storeElem))
+    })
 }
 
 const addProduct = (product, elem) => {
     const p = document.createElement('div')
-    p.classList.add('col-sm-4')
-
-    const p2 = document.createElement('div')
-    p2.classList.add('product')
+    p.classList.add('product')
 
     const [name, name2, price, url, country, format, volume, style, type] = product
 
@@ -133,9 +130,7 @@ const addProduct = (product, elem) => {
     link.appendChild(pName)
     link.appendChild(pText)
 
-    p2.appendChild(link)
-    p.appendChild(p2)
-
+    p.appendChild(link)
     elem.appendChild(p)
 }
 
