@@ -112,7 +112,7 @@ def create_tables(cursor):
         )''',
         '''CREATE TABLE IF NOT EXISTS stock (
             productId INT,
-            storeId INT,
+            storeId TEXT,
             category INT,
             PRIMARY KEY (productId, storeId)
         )'''
