@@ -241,7 +241,7 @@ def insert_or_get_existing(table, column, data, cursor):
 def convert_stock_to_json(cursor):
     if not os.path.exists('stores'):
         os.makedirs('stores')
-    
+
     cursor.execute('SELECT * FROM stock ORDER BY storeId ASC, category ASC')
 
     current_store = None
@@ -285,7 +285,7 @@ def convert_products_to_json(cursor):
     for product in db_products:
         if current_category is None:
             current_category = product[4]
-        
+
         if product[4] != current_category:
             with open('products/{}.json'.format(current_category), 'w') as jsonfile:
                 json.dump(products, jsonfile)
@@ -314,7 +314,7 @@ def convert_stores_to_json():
             name = store.xpath('Namn/text()')[0]
         except IndexError:
             name = store.xpath('Address1/text()')[0]
-        
+
         city = store.xpath('Address4/text()')[0]
         store_json.append([nr, name, city.upper()])
 
@@ -375,7 +375,6 @@ def convert_misc_to_json(cursor):
     with open('info.json', 'w') as jsonfile:
         json.dump(info, jsonfile)
 
-
 def write_to_file(products, storeNr):
     with open('stores/{}.json'.format(storeNr), 'w') as jsonfile:
         json.dump(products, jsonfile)
@@ -397,7 +396,7 @@ def convert_stock(cursor):
 
         if len(products) == 0:
             continue
-    
+
         cursor.execute('''
             SELECT id, category 
             FROM products 
