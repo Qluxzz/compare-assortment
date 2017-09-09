@@ -1,20 +1,13 @@
-var products = {}
+const products = {}
 var info = {}
+const category = () => document.getElementById('category').value
 
-const loadData = () => {
-    $.get({
-        url: 'products/5.json'
-    }).done(ps => {
-        products = ps
-    })
+const loadData = async () => {
+    let response = await fetch('info.json')
+    let data = await response.json()
 
-    $.get({
-        url: 'info.json',
-        success: addCategories 
-    }).done(data => {
-     info = data
-     addCategories(info.categories)
-    })
+    info = data
+    addCategories(info.categories)
 }
 const addCategories = categories => {
     const elem = document.getElementById('category')
@@ -29,55 +22,76 @@ const addCategories = categories => {
     }
 }
 
-const getStores = () => {
+const compareStores = async () => {
+    storeStock = await getStoreStock([
+        document.getElementById('store1').value,
+        document.getElementById('store2').value
+    ])
+
+    const category = document.getElementById('category').value
+    await getProductsByCategory(category)
+
+    const diff = getStockDiff(storeStock, category)
+
+    const products = getProductInformation(diff, category)
+    viewProductDiff(products)
+}
+
+const getStores = async () => {
     var selects = [document.getElementById('store1'), document.getElementById('store2')]
 
-    $.get({
-        url: 'stores/info.json',
-        contentType: 'json'
-    }).done(stores => {
-        stores.forEach(store => {
-            const [nr, name, city] = store
-            
-            selects.forEach(select => {
-                var option = document.createElement('option')
-                option.value = nr
-                option.text = `${city} - ${name}`
-                select.appendChild(option)
-            })
+    let response = await fetch('stores/info.json')
+    let data = await response.json()
+
+    data.forEach(store => {
+        const [nr, name, city] = store
+
+        selects.forEach(select => {
+            const option = document.createElement('option')
+            option.value = nr
+            option.text = `${city} - ${name}`
+            select.appendChild(option)
         })
     })
 }
 
 const addEventListener = () => {
     document.getElementById('compare')
-        .addEventListener('click', getStoreStock)
+        .addEventListener('click', compareStores)
     document.getElementById('compare-form')
-        .addEventListener('submit',e => e.preventDefault())
+        .addEventListener('submit', e => e.preventDefault())
 }
 
-var storeStock = []
+const _getStoreStock = async (nr) => {
+    let response = await fetch(`stores/${nr}.json`)
+    let data = await response.json()
+    return data
+}
+const getStoreStock = async (storeNr) => {
+    let promises = storeNr.map(store => _getStoreStock(store))
 
-const getStoreStock = event => {
-    const selectedStores = [
-        parseInt(document.getElementById('store1').value),
-        parseInt(document.getElementById('store2').value)
-    ]
-    storeStock = []
-    selectedStores.forEach(store => getStock(store))
+    let results = []
+    for (let promise of promises) {
+        results.push(await promise)
+    }
+    return results
 }
 
 var storeDiffStock = []
 
-const getProductInformation = ids => {
-    var stores = []
-    
-    ids.forEach(diff => {
-        var store = []
-        diff.forEach(id => store.push(products[id]))
-        stores.push(store)
-    })
-    viewProductDiff(stores)
+const getProductInformation = (ids, category) => {
+    return ids.map(diff =>
+        diff.map(id => products[category][id])
+    )
+}
+
+const getProductsByCategory = async (category) => {
+    if (products[category])
+        return
+
+    let response = await fetch(`products/${category}.json`)
+    let data = await response.json()
+    products[category] = data
 }
 
 const viewProductDiff = stores => {
@@ -125,27 +139,13 @@ const addProduct = (product, elem) => {
     elem.appendChild(p)
 }
 
-const compareStore = () => {
-    const categories = [storeStock[0][5], storeStock[1][5]]
-    const diff = categories.map((c,i,t) => {
+const getStockDiff = (stock, category) => {
+    const categories = stock.map(x => x[category])
+    const diff = categories.map((c, i, t) => {
         const flat = t.filter(y => y !== c).reduce((a, z) => a.concat(z), [])
-        return c.filter(n => flat.filter(g => g === n).length<t.length-1)
+        return c.filter(n => flat.filter(g => g === n).length < t.length - 1)
     })
-    getProductInformation(diff)
-}
-
-const addStock = stock => {
-    storeStock.push(stock)
-    if (storeStock.length === 2)
-        compareStore()
-}
-
-const getStock = storeId => {
-    $.get({
-        url: `stores/${storeId}.json`,
-        aync: false,
-        success: addStock
-    })
+    return diff
 }
 
 addEventListener()
