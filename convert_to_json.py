@@ -291,7 +291,7 @@ def convert_products_to_json(cursor):
                 json.dump(products, jsonfile)
             products.clear()
             current_category = product[4]
-        products[product[0]] = product[1:3] + product[4:]
+        products[product[0]] = product[1:4] + product[5:]
         pbar.update(1)
 
 def convert_stores_to_json():
