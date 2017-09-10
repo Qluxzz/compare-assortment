@@ -46,6 +46,7 @@ label {
 }
 .product {
   width: calc(100%);
+  min-height: 63px;
 }
 @media (min-width: 768px) {
   .product {

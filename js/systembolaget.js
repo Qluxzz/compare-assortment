@@ -123,9 +123,9 @@ const addProduct = (product, elem) => {
 
     const pText = document.createElement('div')
     pText.classList.add('product-text')
-    pText.innerHTML += country && `${info.countries[country]}<br />`
-    pText.innerHTML += style && `${info.styles[style]}<br />`
-    pText.innerHTML += type && `${info.types[type]}`
+    pText.innerHTML += (country && info.countries[country].length > 0) ? `${info.countries[country]}<br />` : ""
+    pText.innerHTML += (style && info.styles[style].length > 0) ? `${info.styles[style]}<br />` : ""
+    pText.innerHTML += (type && info.types[type].length > 0) ? `${info.types[type]}` : ""
 
     link.appendChild(pName)
     link.appendChild(pText)
