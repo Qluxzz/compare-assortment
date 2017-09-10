@@ -319,7 +319,7 @@ def convert_stores_to_json():
         store_json.append([nr, name, city.upper()])
 
     with open('stores/info.json', 'w') as jsonfile:
-        json.dump(sorted(store_json, key= lambda x: x[2]), jsonfile)
+        json.dump(sorted(store_json, key=lambda x: x[2]), jsonfile)
 
 def convert_misc_to_json(cursor):
     if not os.path.exists('info'):
@@ -327,50 +327,19 @@ def convert_misc_to_json(cursor):
 
     info = {}
 
-    cursor.execute('SELECT rowid, style FROM styles')
+    statements = [
+        {'row': 'style', 'table': 'styles'},
+        {'row': 'type', 'table': 'types'},
+        {'row': 'country', 'table': 'countries'},
+        {'row': 'format', 'table': 'formats'},
+        {'row': 'category', 'table': 'categories'}
+    ]
 
-    styles = {}
-
-    for style in cursor.fetchall():
-        styles[style[0]] = style[1]
-
-    info['styles'] = styles
-
-    cursor.execute('SELECT rowid, type FROM types')
-
-    types = {}
-
-    for _type in cursor.fetchall():
-        types[_type[0]] = _type[1]
-
-    info['types'] = types
-
-    cursor.execute('SELECT rowid, country FROM countries')
-
-    countries = {}
-
-    for country in cursor.fetchall():
-        countries[country[0]] = country[1]
-
-    info['countries'] = countries
-
-    formats = {}
-
-    cursor.execute('SELECT rowid, format FROM formats')
-
-    for format in cursor.fetchall():
-        formats[format[0]] = format[1]
-
-    info['formats'] = formats
-
-    categories = {}
-
-    cursor.execute('SELECT rowid, category FROM categories')
-
-    for category in cursor.fetchall():
-        categories[category[0]] = category[1]
-
-    info['categories'] = categories
+    for statement in statements:
+        cursor.execute('SELECT rowid, {} FROM {}'.format(statement['row'], statement['table']))
+        info[statement['table']] = {}
+        for entry in cursor.fetchall():
+            info[statement['table']][entry[0]] = entry[1]
 
     with open('info.json', 'w') as jsonfile:
         json.dump(info, jsonfile)
@@ -404,18 +373,21 @@ def convert_stock(cursor):
         '''.format(', '.join([str(x) for x in products])))
 
         for entry in cursor.fetchall():
-            cursor.execute('INSERT INTO stock VALUES (?, ?, ?)', (entry[0], nr, entry[1],))
+            cursor.execute(
+                'INSERT INTO stock VALUES (?, ?, ?)',
+                (entry[0], nr, entry[1],)
+            )
         pbar.update(1)
 
 def main():
     should_update_files()
     try:
-        db = sqlite3.connect(':memory:')
+        database = sqlite3.connect(':memory:')
     except:
         print('Failed to open database')
         sys.exit()
 
-    cursor = db.cursor()
+    cursor = database.cursor()
 
     create_tables(cursor)
     convert_products(cursor)
@@ -425,7 +397,7 @@ def main():
     convert_products_to_json(cursor)
     convert_stores_to_json()
     convert_misc_to_json(cursor)
-    db.close()
+    database.close()
 
 if __name__ == "__main__":
     main()
