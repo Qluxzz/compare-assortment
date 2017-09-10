@@ -123,9 +123,26 @@ const addProduct = (product, elem) => {
 
     const pText = document.createElement('div')
     pText.classList.add('product-text')
-    pText.innerHTML += (country && info.countries[country].length > 0) ? `${info.countries[country]}<br />` : ""
-    pText.innerHTML += (style && info.styles[style].length > 0) ? `${info.styles[style]}<br />` : ""
-    pText.innerHTML += (type && info.types[type].length > 0) ? `${info.types[type]}` : ""
+
+    pFormats = [
+        { variable: country, table: info.countries, format: result => `${result}<br />`},
+        { variable: style, table: info.styles, format: result => `${result}, `},
+        { variable: type, table: info.types, format: result => `${result}<br />`},
+        { variable: format, table: info.formats, format: result => `${result}, `},
+        { variable: volume, table: undefined, format: result => `${result} ml<br />`},
+        { variable: price, table: undefined, format: result => `${result.toFixed(2)} kr`}
+    ]
+
+    pFormats.forEach(({variable, table, format}) => {
+        if (variable) {
+            if (table) {
+                if (table[variable].length > 0)
+                    pText.innerHTML += format(table[variable])
+            }
+            else
+                pText.innerHTML += format(variable)
+        }
+    })
 
     link.appendChild(pName)
     link.appendChild(pText)
