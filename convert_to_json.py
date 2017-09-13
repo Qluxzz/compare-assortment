@@ -322,9 +322,6 @@ def convert_stores_to_json():
         json.dump(sorted(store_json, key=lambda x: x[2]), jsonfile)
 
 def convert_misc_to_json(cursor):
-    if not os.path.exists('info'):
-        os.makedirs('info')
-
     info = {}
 
     statements = [
