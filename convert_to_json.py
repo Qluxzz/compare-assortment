@@ -418,4 +418,5 @@ def push_to_repo():
     repo.remotes['origin'].push()
 
 if __name__ == "__main__":
-    main()
+    push_to_repo()
+    #main()
