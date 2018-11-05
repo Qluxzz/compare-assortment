@@ -6,12 +6,21 @@ import sqlite3
 import sys
 import time
 import urllib.request
+import configparser
 
 from lxml import etree
 from slugify import slugify
 from tqdm import tqdm
 
+from git import Repo
+
+
 PP = pprint.PrettyPrinter()
+
+ROOTPATH = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+CONFIG = configparser.RawConfigParser()
+CONFIG.read(os.path.join(ROOTPATH, 'settings.ini'))
 
 CATEGORY = {
     'Alkoholfritt': 'alkoholfritt',
@@ -163,7 +172,6 @@ def convert_products(cursor):
         {'name': 'type', 'table': 'types'}
     ]
 
-    products_information = {}
     products = productsfile.xpath('/artiklar/artikel')
 
     pbar = tqdm(len(products), desc='Add products to database')
@@ -333,7 +341,7 @@ def convert_misc_to_json(cursor):
     ]
 
     for statement in statements:
-        cursor.execute('SELECT rowid, {} FROM {}'.format(statement['row'], statement['table']))
+        cursor.execute('SELECT rowid, {} FROM {} ORDER BY {}'.format(statement['row'], statement['table'], statement['row']))
         info[statement['table']] = {}
         for entry in cursor.fetchall():
             info[statement['table']][entry[0]] = entry[1]
@@ -395,6 +403,19 @@ def main():
     convert_stores_to_json()
     convert_misc_to_json(cursor)
     database.close()
+
+    push_to_repo()
+
+def push_to_repo():
+    repo = Repo(ROOTPATH)
+    [repo.git.add(file) for file in repo.git.diff(None, name_only=True).split('\n')]
+
+    config = repo.config_writer()
+    config.set_value("user", "email", CONFIG['Github']['user_name'])
+    config.set_value("user", "password", CONFIG['Github']['token'])
+
+    repo.git.commit(m='Update assortment')
+    repo.remotes['origin'].push()
 
 if __name__ == "__main__":
     main()

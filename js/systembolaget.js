@@ -9,17 +9,17 @@ const loadData = async () => {
     info = data
     addCategories(info.categories)
 }
+
 const addCategories = categories => {
     const elem = document.getElementById('category')
-    for (key in Object.keys(categories)) {
-        if (categories[key] === undefined)
-            continue
 
-        const option = document.createElement('option')
-        option.value = key
-        option.text = categories[key]
-        elem.appendChild(option)
-    }
+    Object.values(categories)
+        .map(([key, value]) => {
+            const option = document.createElement('option')
+            option.value = key
+            option.text = value
+            elem.appendChild(option)
+        })
 }
 
 const compareStores = async () => {
@@ -125,15 +125,15 @@ const addProduct = (product, elem) => {
     pText.classList.add('product-text')
 
     pFormats = [
-        { variable: country, table: info.countries, format: result => `${result}<br />`},
-        { variable: style, table: info.styles, format: result => `${result}, `},
-        { variable: type, table: info.types, format: result => `${result}<br />`},
-        { variable: format, table: info.formats, format: result => `${result}, `},
-        { variable: volume, table: undefined, format: result => `${result} ml<br />`},
-        { variable: price, table: undefined, format: result => `${result.toFixed(2)} kr`}
+        { variable: country, table: info.countries, format: result => `${result}<br />` },
+        { variable: style, table: info.styles, format: result => `${result}, ` },
+        { variable: type, table: info.types, format: result => `${result}<br />` },
+        { variable: format, table: info.formats, format: result => `${result}, ` },
+        { variable: volume, table: undefined, format: result => `${result} ml<br />` },
+        { variable: price, table: undefined, format: result => `${result.toFixed(2)} kr` }
     ]
 
-    pFormats.forEach(({variable, table, format}) => {
+    pFormats.forEach(({ variable, table, format }) => {
         if (variable) {
             if (table) {
                 if (table[variable].length > 0)
