@@ -336,15 +336,19 @@ def convert_misc_to_json(cursor):
         {'row': 'style', 'table': 'styles'},
         {'row': 'type', 'table': 'types'},
         {'row': 'country', 'table': 'countries'},
-        {'row': 'format', 'table': 'formats'},
-        {'row': 'category', 'table': 'categories'}
+        {'row': 'format', 'table': 'formats'}
     ]
 
     for statement in statements:
-        cursor.execute('SELECT rowid, {} FROM {} ORDER BY {}'.format(statement['row'], statement['table'], statement['row']))
-        info[statement['table']] = []
+        row = statement['row']
+        table = statement['table']
+        cursor.execute('SELECT rowid, {} FROM {} ORDER BY {}'.format(row, table, row))
+        info[table] = {}
         for key, value in cursor.fetchall():
-            info[statement['table']].append([key, value])
+            info[table][key] = value
+
+    cursor.execute('SELECT rowid, category FROM categories ORDER BY category')
+    info['categories'] = [{ 'key': key, 'value': value } for key, value in cursor.fetchall()]
 
     with open('info.json', 'w') as jsonfile:
         json.dump(info, jsonfile)
