@@ -342,9 +342,9 @@ def convert_misc_to_json(cursor):
 
     for statement in statements:
         cursor.execute('SELECT rowid, {} FROM {} ORDER BY {}'.format(statement['row'], statement['table'], statement['row']))
-        info[statement['table']] = {}
-        for entry in cursor.fetchall():
-            info[statement['table']][entry[0]] = entry[1]
+        info[statement['table']] = []
+        for key, value in cursor.fetchall():
+            info[statement['table']].append([key, value])
 
     with open('info.json', 'w') as jsonfile:
         json.dump(info, jsonfile)
@@ -404,19 +404,19 @@ def main():
     convert_misc_to_json(cursor)
     database.close()
 
-    push_to_repo()
+    #push_to_repo()
 
 def push_to_repo():
     repo = Repo(ROOTPATH)
     [repo.git.add(file) for file in repo.git.diff(None, name_only=True).split('\n')]
 
-    config = repo.config_writer()
+    config = repo.config_reader()
     config.set_value("user", "username", CONFIG['Github']['user_name'])
     config.set_value("user", "password", CONFIG['Github']['token'])
 
     repo.git.commit(m='Update assortment')
-    repo.remotes['origin'].push()
+    repo.git.push()
 
 if __name__ == "__main__":
-    push_to_repo()
-    #main()
+    #push_to_repo()
+    main()

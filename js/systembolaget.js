@@ -12,9 +12,8 @@ const loadData = async () => {
 
 const addCategories = categories => {
     const elem = document.getElementById('category')
-
-    Object.values(categories)
-        .map(([key, value]) => {
+    
+    categories.map(([key, value]) => {
             const option = document.createElement('option')
             option.value = key
             option.text = value
