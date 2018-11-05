@@ -411,7 +411,7 @@ def push_to_repo():
     [repo.git.add(file) for file in repo.git.diff(None, name_only=True).split('\n')]
 
     config = repo.config_writer()
-    config.set_value("user", "email", CONFIG['Github']['user_name'])
+    config.set_value("user", "username", CONFIG['Github']['user_name'])
     config.set_value("user", "password", CONFIG['Github']['token'])
 
     repo.git.commit(m='Update assortment')
