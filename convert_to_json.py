@@ -348,7 +348,7 @@ def convert_misc_to_json(cursor):
             info[table][key] = value
 
     cursor.execute('SELECT rowid, category FROM categories ORDER BY category')
-    info['categories'] = [{ 'key': key, 'value': value } for key, value in cursor.fetchall()]
+    info['categories'] = [[key, value] for key, value in cursor.fetchall()]
 
     with open('info.json', 'w') as jsonfile:
         json.dump(info, jsonfile)
